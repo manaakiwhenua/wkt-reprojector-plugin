@@ -4,6 +4,8 @@ A sample [pygeoapi](https://github.com/geopython/pygeoapi) processing plugin. Th
 
 Since it uses Proj v6, it is capable of supporting datum-shift transformations. The output includes information about the transformation that was applied, making this suitable for use by applications that need to maintain records of any transformations applied to data.
 
+Sample screenshots of how this looks in (a development version of) pygeoapi: https://imgur.com/a/yJc4IdU.
+
 ## Building for release
 
 Requires wheel.
