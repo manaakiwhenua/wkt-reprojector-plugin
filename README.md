@@ -1,3 +1,5 @@
+[![manaakiwhenua-standards](https://github.com/manaakiwhenua/wkt-reprojector-plugin/workflows/manaakiwhenua-standards/badge.svg)](https://github.com/manaakiwhenua/manaakiwhenua-standards)
+
 # wkt_reprojector_plugin
 
 A sample [pygeoapi](https://github.com/geopython/pygeoapi) processing plugin. This plugin is capable of taking a WKT geometry with a stated projection, and reprojecting it to a target projection, returning the output as WKT.
