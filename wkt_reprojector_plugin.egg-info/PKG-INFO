@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: wkt-reprojector-plugin
-Version: 0.0.1
+Version: 0.0.2
 Summary: pygeoapi plugin for performing reprojection on geometries encoded as WKT
 Home-page: https://github.com/manaakiwhenua/wkt-reprojector-plugin
 Author: Richard Law

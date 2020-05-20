@@ -1,3 +1,4 @@
+README.md
 setup.py
 wkt_reprojector_plugin/__init__.py
 wkt_reprojector_plugin.egg-info/PKG-INFO

@@ -39,8 +39,6 @@ from shapely import wkt
 from shapely.geometry import Polygon, MultiPoint, MultiLineString, MultiPolygon, GeometryCollection
 from shapely.ops import transform
 
-from pygeoapi.process.base import BaseProcessor
-
 LOGGER = logging.getLogger(__name__)
 CURRENT_YEAR = float(datetime.datetime.now().year)
 
@@ -510,184 +508,189 @@ PROCESS_METADATA = {
     }
 }
 
-class BestTransformationUnavailableError(Exception):
-    """
-    Raise when the transformation is limited to using the best possible
-    transformation, but this is not available due to missing grids
-    """
-    def __init__(self, message, best_transformation, *args):
-        self.message = message
-        self.best_transformation = best_transformation
-        super(MyAppValueError, self).__init__(message, best_transformation, *args)
+try:
+    from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 
-class TransformationUnavailableError(Exception):
-    """
-    Raise when there is no identified transformation between two CRSs
-    """
-    def __init__(self, input_crs, output_crs, *args):
-        self.input_crs = input_crs
-        self.output_crs = output_crs
-        message = f'There is no transformation between {self.input_crs.name} and {self.output_crs.name}'
-        self.message = message
-        super(MyAppValueError, self).__init__(message, input_crs, output_crs, *args)
+    class BestTransformationUnavailableError(ProcessorExecuteError):
+        """
+        Raise when the transformation is limited to using the best possible
+        transformation, but this is not available due to missing grids
+        """
+        def __init__(self, message, best_transformation, *args):
+            self.message = message
+            self.best_transformation = best_transformation
+            super(MyAppValueError, self).__init__(message, best_transformation, *args)
 
-class TooInaccurateError(Exception):
-    """
-    Raise when the transformation accuracy is too high relative to client
-    expectation
-    """
-    def __init__(self, message, accuracy, *args):
-        self.message = message
-        self.accuracy = best_transformation
-        super(MyAppValueError, self).__init__(message, accuracy, *args)
+    class TransformationUnavailableError(ProcessorExecuteError):
+        """
+        Raise when there is no identified transformation between two CRSs
+        """
+        def __init__(self, input_crs, output_crs, *args):
+            self.input_crs = input_crs
+            self.output_crs = output_crs
+            message = f'There is no transformation between {self.input_crs.name} and {self.output_crs.name}'
+            self.message = message
+            super(MyAppValueError, self).__init__(message, input_crs, output_crs, *args)
 
-def geom_transformation(transformer, geom, params):
-    LOGGER.debug(geom.type)
-    if geom.type == 'GeometryCollection':
-        collection = [geom_transformation(transformer, _geom, params) for _geom in geom.geoms]
-        geom_output = GeometryCollection(collection)
-    elif not geom.type.startswith('Multi'):
-        geom_output = singlepart_geom_transformation(transformer, geom, params)
-    elif geom.type.startswith('Multi'):
-        parts = [geom_transformation(transformer, part, params) for part in geom]
-        if parts[0].type == 'Point':
-            geom_output = MultiPoint(parts)
-        elif parts[0].type == 'LineString':
-            geom_output = MultiLineString(parts)
-        elif parts[0].type == 'Polygon':
-            geom_output = MultiPolygon(parts)
-    return geom_output
+    class TooInaccurateError(ProcessorExecuteError):
+        """
+        Raise when the transformation accuracy is too high relative to client
+        expectation
+        """
+        def __init__(self, message, accuracy, *args):
+            self.message = message
+            self.accuracy = best_transformation
+            super(MyAppValueError, self).__init__(message, accuracy, *args)
 
-def singlepart_geom_transformation(transformer, geom, params):
-    LOGGER.debug('Performing singlepart geometry transformation')
-    trans_kwargs = {
-        'radians': params['radians'],
-        'errcheck': params['errcheck'],
-        'direction': params['direction']
-    }
-    if hasattr(geom, 'type') and geom.type == 'Polygon':
-        LOGGER.debug('Polygon type: transforming in rings')
-        LOGGER.debug(geom.exterior)
-        LOGGER.debug(geom.interiors)
-        shell = singlepart_geom_transformation(transformer, geom.exterior, params)
-        holes = [singlepart_geom_transformation(transformer, hole, params) for hole in geom.interiors]
-        return Polygon(shell, holes=holes)
-    print(geom)
-    trans_kwargs = {
-        'tt': tuple([float(params.get('time'))]) * len(geom.coords),
-        **trans_kwargs
-    }
-    if not geom.has_z:
-        # GEOS does not understand M, but to allow for time-dependent
-        # transformations, M must be used to represent time, and then
-        # removed from the output - because GEOS re-interprets M as Z
-        # see https://github.com/Toblerity/Shapely/issues/882
-        geom_slice = slice(2)
-        coord_transformer = lambda xx, yy: transformer.transform(xx, yy,
-            zz=None,
-            **trans_kwargs
-        )[geom_slice]
-        return transform(coord_transformer, geom)
-    # Input is 3-dimensional (X, Y, Z), or
-    # Input has M (X, Y, M) - M will be interpreted as Z
-    # In the case of ZM: M is silently dropped by GEOS, Z is retained
-    # Therefore, POINT M (1 2 3) is interpreted as POINT Z (1 2 3)
-    # and POINT ZM (1 2 3 4) is interpreted as POINT Z (1 2 3)
-    # and this limitation is regretfully acknowledged
-    geom_slice = slice(3)
-    coord_transformer = lambda xx, yy, zz: transformer.transform(xx, yy,
-        zz=zz,
-        **trans_kwargs
-    )[geom_slice]
-    return transform(coord_transformer, geom)
+    def geom_transformation(transformer, geom, params):
+        LOGGER.debug(geom.type)
+        if geom.type == 'GeometryCollection':
+            collection = [geom_transformation(transformer, _geom, params) for _geom in geom.geoms]
+            geom_output = GeometryCollection(collection)
+        elif not geom.type.startswith('Multi'):
+            geom_output = singlepart_geom_transformation(transformer, geom, params)
+        elif geom.type.startswith('Multi'):
+            parts = [geom_transformation(transformer, part, params) for part in geom]
+            if parts[0].type == 'Point':
+                geom_output = MultiPoint(parts)
+            elif parts[0].type == 'LineString':
+                geom_output = MultiLineString(parts)
+            elif parts[0].type == 'Polygon':
+                geom_output = MultiPolygon(parts)
+        return geom_output
 
-class WKTReprojectorProcessor(BaseProcessor):
-    '''WKT reprojection example'''
-
-    def __init__(self, provider_def):
-        '''
-        Initialize object
-        :param provider_def: provider definition
-        :returns: pygeoapi.process.reproject-coords.WKTReprojectorProcessor
-        '''
-        # Filter out empty outputs
-        metadata = dict(PROCESS_METADATA)
-        metadata['outputs'] = list(filter(bool,metadata['outputs']))
-
-        BaseProcessor.__init__(self, provider_def, metadata)
-
-    def __repr__(self):
-        return '<WKTReprojectorProcessor> {}'.format(self.name)
-
-    def execute(self, data):
-        wkt_input = data.get('wkt', self.get_default('wkt'))
-        geom = wkt.loads(wkt_input)
-        params = {p: data.get(p, self.get_default(p)) for p in (
-            'always_xy', 'errcheck', 'radians', 'direction', 'src_crs', 'dst_crs',
-            'best_available', 'rounding_precision', 'time', 'minimum_accuracy'
-        )}
-        aoi_params = ('west_lon_degree','south_lat_degree','east_lon_degree','north_lat_degree')
-        if all(map(lambda b: isinstance(data.get(b, None), Number), aoi_params)):
-            params['area_of_interest'] = AreaOfInterest(*map(data.get, aoi_params))
-        input_crs = CRS.from_user_input(params.get('src_crs').strip())
-        output_crs = CRS.from_user_input(params.get('dst_crs').strip())
-
-        transformerGroup = TransformerGroup(
-            crs_from=input_crs,
-            crs_to=output_crs,
-            skip_equivalent=True, # Don't perform a transformation between equivalent CRSs
-            always_xy=params.get('always_xy'),
-            area_of_interest=params.get('area_of_interest', None)
-        )
-        if not len(transformerGroup.transformers):
-            raise TransformationUnavailableError(input_crs, output_crs)
-        if params.get('best_available') and not transformerGroup.best_available:
-            raise BestTransformationUnavailableError(f'Transformation {transformer.unavailable_operations[0].name} is unavailable', transformer.unavailable_operations[0])
-        elif transformerGroup.best_available:
-            is_best_available = True
-        else:
-            is_best_available = False
-        transformer = transformerGroup.transformers[0]
-        minimum_accuracy = params.get('minimum_accuracy')
-        if minimum_accuracy is not None and transformer.accuracy > minimum_accuracy:
-            raise TooInaccurateError(f'The transformation would introduce too much inaccuracy in the output ({transformer.accuracy} > {minimum_accuracy})', transformer.accuracy)
-        rounding_precision = max(0, int(params.get('rounding_precision')))
-        kwargs = {
+    def singlepart_geom_transformation(transformer, geom, params):
+        LOGGER.debug('Performing singlepart geometry transformation')
+        trans_kwargs = {
             'radians': params['radians'],
             'errcheck': params['errcheck'],
             'direction': params['direction']
         }
-        LOGGER.debug(geom.type)
-        geom_output = geom_transformation(transformer, geom, params)
-        wkt_geom = wkt.dumps(geom_output, rounding_precision=rounding_precision).replace('"','')
-        if not geom.has_z and geom_output.has_z:
-            wkt_geom = wkt_geom.replace('Z', 'M')
-            LOGGER.debug('Replaced false Z with M')
-        LOGGER.debug(wkt_geom)
-        return {
-            'wkt': wkt_geom,
-            # 'src_crs': input_crs.to_json_dict(),#.to_wkt(version=WktVersion.WKT2_2019, pretty=False),
-            # 'dst_crs': output_crs.to_json_dict(),#.to_wkt(version=WktVersion.WKT2_2019, pretty=False),
-            # 'area_of_use': {
-            #     'west': transformer.area_of_use.west,
-            #     'south': transformer.area_of_use.south,
-            #     'east': transformer.area_of_use.east,
-            #     'north': transformer.area_of_use.north,
-            #     'name': transformer.area_of_use.name
-            # },
-            # 'accuracy': float(transformer.accuracy) if transformer.accuracy != -1 else None,
-            'definition': transformer.definition,
-            # 'description': transformer.description,
-            # 'name': transformer.name,
-            # 'remarks': transformer.remarks,
-            # 'scope': transformer.scope,
-            'transformer': transformer.to_json_dict(),
-            # 'transformer_wkt': transformer.to_wkt(version=WktVersion.WKT2_2019),
-            'best_available': is_best_available,
-            'is_bound': output_crs.is_bound,
-            'is_engineering': output_crs.is_engineering,
-            'is_geocentric': output_crs.is_geocentric,
-            'is_geographic': output_crs.is_geographic,
-            'is_projected': output_crs.is_projected,
-            'is_vertical': output_crs.is_vertical
+        if hasattr(geom, 'type') and geom.type == 'Polygon':
+            LOGGER.debug('Polygon type: transforming in rings')
+            LOGGER.debug(geom.exterior)
+            LOGGER.debug(geom.interiors)
+            shell = singlepart_geom_transformation(transformer, geom.exterior, params)
+            holes = [singlepart_geom_transformation(transformer, hole, params) for hole in geom.interiors]
+            return Polygon(shell, holes=holes)
+        print(geom)
+        trans_kwargs = {
+            'tt': tuple([float(params.get('time'))]) * len(geom.coords),
+            **trans_kwargs
         }
+        if not geom.has_z:
+            # GEOS does not understand M, but to allow for time-dependent
+            # transformations, M must be used to represent time, and then
+            # removed from the output - because GEOS re-interprets M as Z
+            # see https://github.com/Toblerity/Shapely/issues/882
+            geom_slice = slice(2)
+            coord_transformer = lambda xx, yy: transformer.transform(xx, yy,
+                zz=None,
+                **trans_kwargs
+            )[geom_slice]
+            return transform(coord_transformer, geom)
+        # Input is 3-dimensional (X, Y, Z), or
+        # Input has M (X, Y, M) - M will be interpreted as Z
+        # In the case of ZM: M is silently dropped by GEOS, Z is retained
+        # Therefore, POINT M (1 2 3) is interpreted as POINT Z (1 2 3)
+        # and POINT ZM (1 2 3 4) is interpreted as POINT Z (1 2 3)
+        # and this limitation is regretfully acknowledged
+        geom_slice = slice(3)
+        coord_transformer = lambda xx, yy, zz: transformer.transform(xx, yy,
+            zz=zz,
+            **trans_kwargs
+        )[geom_slice]
+        return transform(coord_transformer, geom)
+
+    class WKTReprojectorProcessor(BaseProcessor):
+        '''WKT reprojection example'''
+
+        def __init__(self, provider_def):
+            '''
+            Initialize object
+            :param provider_def: provider definition
+            :returns: pygeoapi.process.reproject-coords.WKTReprojectorProcessor
+            '''
+            # Filter out empty outputs
+            metadata = dict(PROCESS_METADATA)
+            metadata['outputs'] = list(filter(bool,metadata['outputs']))
+
+            BaseProcessor.__init__(self, provider_def, metadata)
+
+        def __repr__(self):
+            return '<WKTReprojectorProcessor> {}'.format(self.name)
+
+        def execute(self, data):
+            wkt_input = data.get('wkt', self.get_default('wkt'))
+            geom = wkt.loads(wkt_input)
+            params = {p: data.get(p, self.get_default(p)) for p in (
+                'always_xy', 'errcheck', 'radians', 'direction', 'src_crs', 'dst_crs',
+                'best_available', 'rounding_precision', 'time', 'minimum_accuracy'
+            )}
+            aoi_params = ('west_lon_degree','south_lat_degree','east_lon_degree','north_lat_degree')
+            if all(map(lambda b: isinstance(data.get(b, None), Number), aoi_params)):
+                params['area_of_interest'] = AreaOfInterest(*map(data.get, aoi_params))
+            input_crs = CRS.from_user_input(params.get('src_crs').strip())
+            output_crs = CRS.from_user_input(params.get('dst_crs').strip())
+
+            transformerGroup = TransformerGroup(
+                crs_from=input_crs,
+                crs_to=output_crs,
+                skip_equivalent=True, # Don't perform a transformation between equivalent CRSs
+                always_xy=params.get('always_xy'),
+                area_of_interest=params.get('area_of_interest', None)
+            )
+            if not len(transformerGroup.transformers):
+                raise TransformationUnavailableError(input_crs, output_crs)
+            if params.get('best_available') and not transformerGroup.best_available:
+                raise BestTransformationUnavailableError(f'Transformation {transformer.unavailable_operations[0].name} is unavailable', transformer.unavailable_operations[0])
+            elif transformerGroup.best_available:
+                is_best_available = True
+            else:
+                is_best_available = False
+            transformer = transformerGroup.transformers[0]
+            minimum_accuracy = params.get('minimum_accuracy')
+            if minimum_accuracy is not None and transformer.accuracy > minimum_accuracy:
+                raise TooInaccurateError(f'The transformation would introduce too much inaccuracy in the output ({transformer.accuracy} > {minimum_accuracy})', transformer.accuracy)
+            rounding_precision = max(0, int(params.get('rounding_precision')))
+            kwargs = {
+                'radians': params['radians'],
+                'errcheck': params['errcheck'],
+                'direction': params['direction']
+            }
+            LOGGER.debug(geom.type)
+            geom_output = geom_transformation(transformer, geom, params)
+            wkt_geom = wkt.dumps(geom_output, rounding_precision=rounding_precision).replace('"','')
+            if not geom.has_z and geom_output.has_z:
+                wkt_geom = wkt_geom.replace('Z', 'M')
+                LOGGER.debug('Replaced false Z with M')
+            LOGGER.debug(wkt_geom)
+            return {
+                'wkt': wkt_geom,
+                # 'src_crs': input_crs.to_json_dict(),#.to_wkt(version=WktVersion.WKT2_2019, pretty=False),
+                # 'dst_crs': output_crs.to_json_dict(),#.to_wkt(version=WktVersion.WKT2_2019, pretty=False),
+                # 'area_of_use': {
+                #     'west': transformer.area_of_use.west,
+                #     'south': transformer.area_of_use.south,
+                #     'east': transformer.area_of_use.east,
+                #     'north': transformer.area_of_use.north,
+                #     'name': transformer.area_of_use.name
+                # },
+                # 'accuracy': float(transformer.accuracy) if transformer.accuracy != -1 else None,
+                'definition': transformer.definition,
+                # 'description': transformer.description,
+                # 'name': transformer.name,
+                # 'remarks': transformer.remarks,
+                # 'scope': transformer.scope,
+                'transformer': transformer.to_json_dict(),
+                # 'transformer_wkt': transformer.to_wkt(version=WktVersion.WKT2_2019),
+                'best_available': is_best_available,
+                'is_bound': output_crs.is_bound,
+                'is_engineering': output_crs.is_engineering,
+                'is_geocentric': output_crs.is_geocentric,
+                'is_geographic': output_crs.is_geographic,
+                'is_projected': output_crs.is_projected,
+                'is_vertical': output_crs.is_vertical
+            }
+except (ImportError, RuntimeError):
+    pass
