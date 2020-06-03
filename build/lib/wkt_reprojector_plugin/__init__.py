@@ -44,7 +44,7 @@ CURRENT_YEAR = float(datetime.datetime.now().year)
 
 #: Process metadata and description
 PROCESS_METADATA = {
-    'version': '0.0.1',
+    'version': '1.0.0',
     'id': 'wkt-reprojector',
     'title': 'WKT Reprojector',
     'description': 'An example process that reprojects a geometry from one CRS to another, using PROJ v6. This will take account of possible datum shifts. Because of the use of PROJ v6, late-binding can be used, and 4D coordinates (three spatial components and one temporal component) are supported.',
@@ -665,7 +665,7 @@ try:
                 wkt_geom = wkt_geom.replace('Z', 'M')
                 LOGGER.debug('Replaced false Z with M')
             LOGGER.debug(wkt_geom)
-            return {
+            outputs = {
                 'wkt': wkt_geom,
                 # 'src_crs': input_crs.to_json_dict(),#.to_wkt(version=WktVersion.WKT2_2019, pretty=False),
                 # 'dst_crs': output_crs.to_json_dict(),#.to_wkt(version=WktVersion.WKT2_2019, pretty=False),
@@ -692,5 +692,8 @@ try:
                 'is_projected': output_crs.is_projected,
                 'is_vertical': output_crs.is_vertical
             }
+            outputs = [{'id': k, 'value': v} for k, v in output.items()]
+            return outputs
+
 except (ImportError, RuntimeError):
     pass
