@@ -692,7 +692,7 @@ try:
                 'is_projected': output_crs.is_projected,
                 'is_vertical': output_crs.is_vertical
             }
-            outputs = [{'id': k, 'value': v} for k, v in output.items()]
+            outputs = [{'id': k, 'value': v} for k, v in outputs.items()]
             return outputs
 
 except (ImportError, RuntimeError):
