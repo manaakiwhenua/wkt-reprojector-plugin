@@ -44,7 +44,7 @@ CURRENT_YEAR = float(datetime.datetime.now().year)
 
 #: Process metadata and description
 PROCESS_METADATA = {
-    'version': '1.0.0',
+    'version': '1.1.0',
     'id': 'wkt-reprojector',
     'title': 'WKT Reprojector',
     'description': 'An example process that reprojects a geometry from one CRS to another, using PROJ v6. This will take account of possible datum shifts. Because of the use of PROJ v6, late-binding can be used, and 4D coordinates (three spatial components and one temporal component) are supported.',
@@ -685,12 +685,12 @@ try:
                 'transformer': transformer.to_json_dict(),
                 # 'transformer_wkt': transformer.to_wkt(version=WktVersion.WKT2_2019),
                 'best_available': is_best_available,
-                'is_bound': output_crs.is_bound,
-                'is_engineering': output_crs.is_engineering,
-                'is_geocentric': output_crs.is_geocentric,
-                'is_geographic': output_crs.is_geographic,
-                'is_projected': output_crs.is_projected,
-                'is_vertical': output_crs.is_vertical
+                # 'is_bound': output_crs.is_bound,
+                # 'is_engineering': output_crs.is_engineering,
+                # 'is_geocentric': output_crs.is_geocentric,
+                # 'is_geographic': output_crs.is_geographic,
+                # 'is_projected': output_crs.is_projected,
+                # 'is_vertical': output_crs.is_vertical
             }
             outputs = [{'id': k, 'value': v} for k, v in outputs.items()]
             return outputs
