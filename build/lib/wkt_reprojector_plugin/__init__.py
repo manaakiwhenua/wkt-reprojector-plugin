@@ -44,7 +44,7 @@ CURRENT_YEAR = float(datetime.datetime.now().year)
 
 #: Process metadata and description
 PROCESS_METADATA = {
-    'version': '1.1.1',
+    'version': '1.1.2',
     'id': 'wkt-reprojector',
     'title': 'WKT Reprojector',
     'description': 'An example process that reprojects a geometry from one CRS to another, using PROJ v6. This will take account of possible datum shifts. Because of the use of PROJ v6, late-binding can be used, and 4D coordinates (three spatial components and one temporal component) are supported.',
@@ -644,7 +644,7 @@ try:
                 raise TransformationUnavailableError(input_crs, output_crs)
             transformer = transformerGroup.transformers[0]
             if params.get('best_available') and not transformerGroup.best_available:
-                raise BestTransformationUnavailableError(f'Transformation {transformer.unavailable_operations[0].name} is unavailable', transformer.unavailable_operations[0])
+                raise BestTransformationUnavailableError(f'Transformation {transformerGroup.unavailable_operations[0].name} is unavailable', transformer.unavailable_operations[0])
             elif transformerGroup.best_available:
                 is_best_available = True
             else:
