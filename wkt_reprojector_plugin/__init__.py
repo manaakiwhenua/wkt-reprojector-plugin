@@ -647,7 +647,8 @@ try:
                 try:
                     transformerGroup.download_grids(verbose=True)
                     return self.execute(data)
-                raise BestTransformationUnavailableError(f'Transformation {transformerGroup.unavailable_operations[0].name} is unavailable', transformerGroup.unavailable_operations[0])
+                except:
+                    raise BestTransformationUnavailableError(f'Transformation {transformerGroup.unavailable_operations[0].name} is unavailable', transformerGroup.unavailable_operations[0])
             elif transformerGroup.best_available:
                 is_best_available = True
             else:
