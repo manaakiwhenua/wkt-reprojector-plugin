@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='wkt_reprojector_plugin',
-    version='0.0.2',
+    version='0.0.4',
     description='pygeoapi plugin for performing reprojection on geometries encoded as WKT',
     url='https://github.com/manaakiwhenua/wkt-reprojector-plugin',
     author='Richard Law',
