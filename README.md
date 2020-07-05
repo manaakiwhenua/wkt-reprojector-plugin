@@ -8,6 +8,26 @@ Since it uses Proj v7, it is capable of supporting datum-shift transformations. 
 
 Sample screenshots of how this looks in (a development version of) pygeoapi: https://imgur.com/a/yJc4IdU.
 
+## Sample transformation
+
+...to convince yourself that transformations are correct.
+
+There is an example documented [here](https://gis.stackexchange.com/questions/364871/why-does-pyproj-give-a-different-point-location-compared-to-ordnance-survey-when)
+
+Input: `POINT Z (55.950621342577172 -3.209168460809744 116.378547668457031)` (ESPG:4326, WGS84)
+
+Desired output: EPSG:27700 (British National Grid)
+
+Naive output (does not use the best available transformation):
+
+POINT Z (324588.97991822625 673725.6892528223 116.378547668457031)
+
+Output confirmed by Ordnance Survey:
+
+POINT Z (324589.0436663538 73726.1910941075 116.378547668457031)
+
+If you can reproduce the latter result, then the transformations are being applied correctly.
+
 ## Building for release
 
 Requires wheel.
