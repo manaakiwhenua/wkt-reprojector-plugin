@@ -9,7 +9,7 @@ setup(name='wkt_reprojector_plugin',
     license='MIT',
     packages=['wkt_reprojector_plugin'],
     install_requires=[
-        'pyproj>=2.6.1', 'shapely>=1.7.0'
+        'pyproj>=3.0.dev0', 'shapely>=1.7.0'
     ],
     zip_safe=False
 )
