@@ -1,2 +1,2 @@
-pyproj>=2.6.0
+pyproj>=2.6.1
 shapely>=1.7.0
