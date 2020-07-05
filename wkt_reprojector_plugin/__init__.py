@@ -519,7 +519,7 @@ try:
         def __init__(self, message, best_transformation, *args):
             self.message = message
             self.best_transformation = best_transformation
-            super(MyAppValueError, self).__init__(message, best_transformation, *args)
+            super(BestTransformationUnavailableError, self).__init__(message, best_transformation, *args)
 
     class TransformationUnavailableError(ProcessorExecuteError):
         """
@@ -530,7 +530,7 @@ try:
             self.output_crs = output_crs
             message = f'There is no transformation between {self.input_crs.name} and {self.output_crs.name}'
             self.message = message
-            super(MyAppValueError, self).__init__(message, input_crs, output_crs, *args)
+            super(TransformationUnavailableError, self).__init__(message, input_crs, output_crs, *args)
 
     class TooInaccurateError(ProcessorExecuteError):
         """
@@ -540,7 +540,7 @@ try:
         def __init__(self, message, accuracy, *args):
             self.message = message
             self.accuracy = best_transformation
-            super(MyAppValueError, self).__init__(message, accuracy, *args)
+            super(TooInaccurateError, self).__init__(message, accuracy, *args)
 
     def geom_transformation(transformer, geom, params):
         LOGGER.debug(geom.type)
