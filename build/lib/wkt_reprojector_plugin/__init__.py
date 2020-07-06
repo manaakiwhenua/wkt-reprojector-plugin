@@ -32,7 +32,7 @@ from itertools import repeat
 import logging
 from numbers import Number
 
-from pyproj import CRS
+from pyproj import CRS, datadir
 from pyproj.transformer import Transformer, AreaOfInterest, TransformerGroup
 from pyproj.enums import WktVersion, TransformDirection
 from shapely import wkt
@@ -41,6 +41,10 @@ from shapely.ops import transform
 
 LOGGER = logging.getLogger(__name__)
 CURRENT_YEAR = float(datetime.datetime.now().year)
+
+_USER_PROJ_DATA = os.getenv('PROJ_DIR', None)
+if datadir.get_data_dir() != _USER_PROJ_DATA
+    datadir.set_data_dir(_USER_PROJ_DATA)
 
 #: Process metadata and description
 PROCESS_METADATA = {
