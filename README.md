@@ -24,7 +24,6 @@ RUN curl -L --output /tmp/proj-datumgrid-oceania-1.2.zip https://github.com/OSGe
 && curl -L --output /tmp/proj-datumgrid-world-1.0.zip https://github.com/OSGeo/proj-datumgrid/releases/download/world-1.0/proj-datumgrid-world-1.0.zip \
 && unzip /tmp/proj-datumgrid-world-1.0.zip -d $PROJ_DIR
 # Include additional Ordnance Survey grids
-# Include additional Ordnance Survey grids
 && curl -L --output /tmp/proj-datumgrid-europe-latest.zip https://download.osgeo.org/proj/proj-datumgrid-europe-latest.zip \
 && unzip -o /tmp/proj-datumgrid-europe-latest.zip -d $PROJ_DIR \
 && curl -L --output /tmp/OSTN15-NTv2.zip https://www.ordnancesurvey.co.uk/documents/resources/OSTN15-NTv2.zip \
