@@ -644,11 +644,12 @@ try:
                 raise TransformationUnavailableError(input_crs, output_crs)
             transformer = transformerGroup.transformers[0]
             if params.get('best_available') and not transformerGroup.best_available:
-                try:
-                    transformerGroup.download_grids(verbose=True)
-                    return self.execute(data)
-                except:
-                    raise BestTransformationUnavailableError(f'Transformation {transformerGroup.unavailable_operations[0].name} is unavailable', transformerGroup.unavailable_operations[0])
+                raise BestTransformationUnavailableError(f'Transformation {transformerGroup.unavailable_operations[0].name} is unavailable', transformerGroup.unavailable_operations[0])
+                # try:
+                #     transformerGroup.download_grids(verbose=True)
+                #     return self.execute(data)
+                # except:
+                #     raise BestTransformationUnavailableError(f'Transformation {transformerGroup.unavailable_operations[0].name} is unavailable', transformerGroup.unavailable_operations[0])
             elif transformerGroup.best_available:
                 is_best_available = True
             else:

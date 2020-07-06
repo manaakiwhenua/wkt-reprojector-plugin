@@ -8,11 +8,26 @@ Since it uses Proj v7, it is capable of supporting datum-shift transformations. 
 
 Sample screenshots of how this looks in (a development version of) pygeoapi: https://imgur.com/a/yJc4IdU.
 
-## Sample transformation
+## Installation
 
-...to convince yourself that transformations are correct.
+This will work without Proj datum grids being installed, but it's better if they are. They can be installed into a Docker container with the following command:
 
-There is an example documented [here](https://gis.stackexchange.com/questions/364871/why-does-pyproj-give-a-different-point-location-compared-to-ordnance-survey-when)
+```Dockerfile
+ENV PROJ_DIR=/usr/local/share/proj
+# Install proj datum grids
+RUN curl -L --output /tmp/proj-datumgrid-oceania-1.2.zip https://github.com/OSGeo/proj-datumgrid/releases/download/oceania-1.2/proj-datumgrid-oceania-1.2.zip \
+&& unzip /tmp/proj-datumgrid-oceania-1.2.zip -d $PROJ_DIR \
+&& curl -L --output /tmp/proj-datumgrid-north-america-1.4.zip https://github.com/OSGeo/proj-datumgrid/releases/download/north-america-1.4/proj-datumgrid-north-america-1.4.zip \
+&& unzip /tmp/proj-datumgrid-north-america-1.4.zip -d $PROJ_DIR \
+&& curl -L --output /tmp/proj-datumgrid-europe-1.6.zip https://github.com/OSGeo/proj-datumgrid/releases/download/europe-1.6/proj-datumgrid-europe-1.6.zip \
+&& unzip /tmp/proj-datumgrid-europe-1.6.zip -d $PROJ_DIR \
+&& curl -L --output /tmp/proj-datumgrid-world-1.0.zip https://github.com/OSGeo/proj-datumgrid/releases/download/world-1.0/proj-datumgrid-world-1.0.zip \
+&& unzip /tmp/proj-datumgrid-world-1.0.zip -d $PROJ_DIR
+```
+
+### Sample transformation
+
+To convince yourself that transformations are correctly using the datum grids: there is an example documented [here](https://gis.stackexchange.com/questions/364871/why-does-pyproj-give-a-different-point-location-compared-to-ordnance-survey-when)
 
 Input: `POINT Z (55.950621342577172 -3.209168460809744 116.378547668457031)` (ESPG:4326, WGS84)
 
