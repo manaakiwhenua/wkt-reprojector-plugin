@@ -648,7 +648,6 @@ try:
             )
             if not len(transformerGroup.transformers):
                 raise TransformationUnavailableError(input_crs, output_crs)
-            transformer = transformerGroup.transformers[0]
             if params.get('best_available') and not transformerGroup.best_available:
                 _operation = transformerGroup.unavailable_operations[0]
                 raise BestTransformationUnavailableError(f'Transformation {_operation.name} ({_operation.method_code} {_operation.method_auth_name}) is unavailable', transformerGroup.unavailable_operations[0])
@@ -662,6 +661,7 @@ try:
             else:
                 is_best_available = False
             minimum_accuracy = params.get('minimum_accuracy')
+            transformer = transformerGroup.transformers[0]
             if minimum_accuracy is not None and transformer.accuracy > minimum_accuracy:
                 raise TooInaccurateError(f'The transformation would introduce too much inaccuracy in the output ({transformer.accuracy} > {minimum_accuracy})', transformer.accuracy)
             rounding_precision = max(0, int(params.get('rounding_precision')))
