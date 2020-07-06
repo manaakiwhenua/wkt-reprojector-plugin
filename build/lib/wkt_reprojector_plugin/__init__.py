@@ -43,7 +43,7 @@ LOGGER = logging.getLogger(__name__)
 CURRENT_YEAR = float(datetime.datetime.now().year)
 
 _USER_PROJ_DATA = os.getenv('PROJ_DIR', None)
-if datadir.get_data_dir() != _USER_PROJ_DATA
+if datadir.get_data_dir() != _USER_PROJ_DATA:
     datadir.set_data_dir(_USER_PROJ_DATA)
 
 #: Process metadata and description
