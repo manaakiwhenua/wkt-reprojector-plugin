@@ -53,7 +53,7 @@ PROCESS_METADATA = {
     'version': '1.2.0',
     'id': 'wkt-reprojector',
     'title': 'WKT Reprojector',
-    'description': 'An example process that reprojects a geometry from one CRS to another, using PROJ v7. This will take account of possible datum shifts. Because of the use of PROJ v7, late-binding can be used, and 4D coordinates (three spatial components and one temporal component) are supported.',
+    'description': 'An example process that reprojects a geometry from one CRS to another, using PROJ v6. This will take account of possible datum shifts. Because of the use of PROJ v6, late-binding can be used, and 4D coordinates (three spatial components and one temporal component) are supported.',
     'keywords': ['reprojection', 'PROJ', '2D', '3D', '4D', 'spatiotemporal transformation'],
     'links': [{
         'type': 'text/html',
