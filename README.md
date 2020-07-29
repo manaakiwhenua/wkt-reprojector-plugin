@@ -27,10 +27,12 @@ RUN curl -L --output /tmp/proj-datumgrid-oceania-1.2.zip https://github.com/OSGe
 && curl -L --output /tmp/proj-datumgrid-europe-latest.zip https://download.osgeo.org/proj/proj-datumgrid-europe-latest.zip \
 && unzip -o /tmp/proj-datumgrid-europe-latest.zip -d $PROJ_DIR \
 && curl -L --output /tmp/OSTN15-NTv2.zip https://www.ordnancesurvey.co.uk/documents/resources/OSTN15-NTv2.zip \
-&& unzip -o /tmp/OSTN15-NTv2.zip -d $PROJ_DIR \
+&& unzip -o /tmp/OSTN15-NTv2.zip -d $PROJ_DIR
 ```
 
 If you have installed the PROJ datum grids somewhere else, you can set the environment variable `PROJ_DIR` as appropriate; this plugin will append this directory to PROJ's list of directories.
+
+If you already have a pygeoaapi Docker image tagged as `pygeoapi`, then you can build the Dockerfile included as part of this repository to have this installation performed for you, on top of your pygeoapi image.
 
 ### Sample transformation
 
