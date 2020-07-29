@@ -44,11 +44,11 @@ Desired output: EPSG:27700 (British National Grid)
 
 Naive output (does not use the best available transformation):
 
-`POINT Z (324588.97992 673725.68925 116.37855)``
+`POINT Z (324588.97992 673725.68925 116.37855)`
 
 Output confirmed by Ordnance Survey:
 
-`POINT Z (324589.04555 673726.19278 116.37855)``
+`POINT Z (324589.04555 673726.19278 116.37855)`
 
 In the job results, you should the following output, where the **Inverse of OSGB 1936 to WGS 84 (9) + British National Grid** is the key term to look for:
 
